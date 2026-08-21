@@ -1,0 +1,163 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start app",
+      "dependsOn": [
+        "Start API",
+        "Start user client",
+        "Start admin client"
+      ],
+      "dependsOrder": "parallel",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run unit tests",
+      "type": "shell",
+      "command": "pnpm test",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "panel": "dedicated",
+        "reveal": "always"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run e2e tests",
+      "type": "shell",
+      "command": "pnpm test:e2e",
+      "dependsOn": "Start database",
+      "group": "test",
+      "presentation": {
+        "panel": "dedicated",
+        "reveal": "always"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Reset database",
+      "type": "shell",
+      "command": "pnpm db:reset",
+      "dependsOn": "Start database",
+      "presentation": {
+        "panel": "dedicated",
+        "reveal": "always"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Seed database",
+      "type": "shell",
+      "command": "pnpm db:seed",
+      "dependsOn": "Start database",
+      "presentation": {
+        "panel": "dedicated",
+        "reveal": "always"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Start API",
+      "type": "shell",
+      "command": "pnpm --filter api dev",
+      "dependsOn": "Start database",
+      "isBackground": true,
+      "presentation": {
+        "group": "app",
+        "panel": "dedicated",
+        "reveal": "always",
+      },
+      "hide": true,
+      "problemMatcher": {
+        "owner": "api",
+        "pattern": [
+          {
+            "regexp": ".",
+            "file": 1,
+            "location": 2,
+            "message": 3
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*tsx.*",
+          "endsPattern": "API listening on"
+        }
+      }
+    },
+    {
+      "label": "Start user client",
+      "type": "shell",
+      "command": "pnpm --filter user-client dev",
+      "isBackground": true,
+      "presentation": {
+        "group": "app",
+        "panel": "dedicated",
+        "reveal": "always",
+      },
+      "hide": true,
+      "problemMatcher": {
+        "owner": "vite",
+        "pattern": [
+          {
+            "regexp": ".",
+            "file": 1,
+            "location": 2,
+            "message": 3
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "VITE",
+          "endsPattern": "ready in"
+        }
+      }
+    },
+    {
+      "label": "Start admin client",
+      "type": "shell",
+      "command": "pnpm --filter admin-client dev",
+      "isBackground": true,
+      "presentation": {
+        "group": "app",
+        "panel": "dedicated",
+        "reveal": "always",
+      },
+      "problemMatcher": {
+        "owner": "vite",
+        "pattern": [
+          {
+            "regexp": ".",
+            "file": 1,
+            "location": 2,
+            "message": 3
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "VITE",
+          "endsPattern": "ready in"
+        }
+      },
+      "hide": true
+    },
+    {
+      "label": "Start database",
+      "type": "shell",
+      "command": "pnpm db:up",
+      "presentation": {
+        "panel": "dedicated",
+        "reveal": "always",
+      },
+      "problemMatcher": [],
+      "hide": true
+    },
+  ]
+}

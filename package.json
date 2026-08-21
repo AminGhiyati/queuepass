@@ -1,0 +1,28 @@
+{
+  "name": "final-queue-pass",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --parallel --filter \"./apps/*\" dev",
+    "build": "pnpm --filter \"./apps/*\" build",
+    "typecheck": "pnpm -r typecheck",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:reset": "pnpm --filter api db:reset",
+    "db:seed": "pnpm --filter api db:seed",
+    "test": "pnpm --filter \"./apps/*\" test",
+    "test:e2e": "pnpm --filter e2e test"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/engines",
+      "esbuild",
+      "prisma",
+      "vue-demi"
+    ]
+  },
+  "packageManager": "pnpm@10.26.1"
+}

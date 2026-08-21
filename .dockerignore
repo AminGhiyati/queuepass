@@ -1,0 +1,9 @@
+.git
+.github
+**/node_modules
+**/dist
+**/*.tsbuildinfo
+**/.env
+apps/api/src/generated
+e2e/playwright-report
+e2e/test-results

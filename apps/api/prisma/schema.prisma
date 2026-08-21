@@ -1,0 +1,186 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ATTENDEE
+  ORGANIZER
+  ADMIN
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+  REFUND_PENDING
+  REFUNDED
+  REFUND_FAILED
+}
+
+enum TicketStatus {
+  VALID
+  CANCELLED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  role          UserRole  @default(ATTENDEE)
+  payoutIban    String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  events        Event[]
+  orders        Order[]
+  payouts       Payout[]
+
+  @@map("user")
+}
+
+model Event {
+  id          String      @id @default(cuid())
+  organizerId String
+  organizer   User        @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  location    String
+  startsAt    DateTime
+  endsAt      DateTime
+  priceCents  Int
+  capacity    Int
+  soldCount   Int         @default(0)
+  imageKey    String?
+  status      EventStatus @default(DRAFT)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  orders      Order[]
+  tickets     Ticket[]
+
+  @@index([organizerId])
+  @@index([status, startsAt])
+  @@map("event")
+}
+
+model Order {
+  id               String      @id @default(cuid())
+  eventId          String
+  event            Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  buyerId          String
+  buyer            User        @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  quantity         Int
+  unitPriceCents   Int
+  totalCents       Int
+  platformFeeCents Int
+  status           OrderStatus @default(PENDING)
+  paymentProvider  String      @default("SIMULATED")
+  paymentReference String?
+  paidAt           DateTime?
+  refundReference  String?
+  refundedAt       DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  tickets          Ticket[]
+
+  @@index([buyerId])
+  @@index([eventId])
+  @@map("order")
+}
+
+model Ticket {
+  id            String       @id @default(cuid())
+  code          String       @unique
+  eventId       String
+  event         Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  orderId       String
+  order         Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status        TicketStatus @default(VALID)
+  checkedInAt   DateTime?
+  checkedInById String?
+  createdAt     DateTime     @default(now())
+
+  @@index([eventId])
+  @@index([orderId])
+  @@map("ticket")
+}
+
+model Payout {
+  id              String   @id @default(cuid())
+  organizerId     String
+  organizer       User     @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  amountCents     Int
+  iban            String
+  markedByAdminId String
+  transferredAt   DateTime @default(now())
+
+  @@index([organizerId])
+  @@map("payout")
+}
+
+model PlatformSettings {
+  id         String @id @default("singleton")
+  feePercent Int    @default(5)
+
+  @@map("platform_settings")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@unique([providerId, accountId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
+}
