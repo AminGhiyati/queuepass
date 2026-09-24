@@ -6,14 +6,6 @@ At the door the organiser scans that QR code in the browser.
 
 Personal project, built to have a full stack of my own to point at.
 
-## Live demo
-
-**[user.queuepass.devnordic.de](https://user.queuepass.devnordic.de/)**
-
-Sign up as an attendee or as a host and you get the full flow: publish an event, buy a ticket, scan
-it at the door.
-
-The admin client is not public.
 
 ![Ticket with the QR code, PDF download and wallet passes](docs/screenshots/ticket.png)
 
